@@ -1,0 +1,110 @@
+﻿@page "/vehiculos"
+@rendermode InteractiveServer
+@using veh.Domain.VehiDto
+
+<PageTitle>Gestión de Vehículos</PageTitle>
+
+<!-- Formulario para agregar un nuevo vehículo -->
+<div class="form-group mb-2">
+    <label for="marca">Marca del vehículo</label>
+    <input @bind="vehiculo.Marca" type="text" class="form-control" placeholder="Ingrese la marca del vehículo" />
+</div>
+
+<div class="form-group mb-2">
+    <label for="modelo">Modelo del vehículo</label>
+    <input @bind="vehiculo.Modelo" type="text" class="form-control" placeholder="Ingrese el modelo del vehículo" />
+</div>
+
+<div class="form-group mb-2">
+    <label for="ano">Año del vehículo</label>
+    <input @bind="vehiculo.Año" type="number" class="form-control" placeholder="Ingrese el año del vehículo" />
+</div>
+
+<div class="form-group mb-2">
+    <label for="color">Color del vehículo</label>
+    <input @bind="vehiculo.Color" type="text" class="form-control" placeholder="Ingrese el color del vehículo" />
+</div>
+
+<!-- Botón para agregar vehículo -->
+<span class="btn btn-primary" @onclick="Agregar">Agregar Vehículo</span>
+
+<!-- Lista de vehículos -->
+<div class="card mt-3">
+    <div class="card-header">
+        Vehículos Existentes
+    </div>
+    <div class="card-body">
+        <div class="container">
+            @if (ListaVehiculos.Any())
+            {
+                @foreach (var v in ListaVehiculos)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@v.Marca @v.Modelo</h5>
+                            <p><strong>Año:</strong> @v.Año</p>
+                            <p><strong>Color:</strong> @v.Color</p>
+                            <button class="btn btn-danger" @onclick="() => Eliminar(v.Id)">Eliminar</button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No hay vehículos registrados.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code
+{
+    // Instancia para manejar un nuevo vehículo
+    private Vehiculo vehiculo = new Vehiculo();
+
+    // Lista en memoria para almacenar los vehículos
+    public List<Vehiculo> ListaVehiculos { get; set; } = new List<Vehiculo>();
+
+    /// <summary>
+    /// Agrega un vehículo a la lista
+    /// </summary>
+    void Agregar()
+    {
+        // Asignar un ID único a cada vehículo (si es necesario)
+        vehiculo.Id = ListaVehiculos.Count > 0 ? ListaVehiculos.Max(v => v.Id) + 1 : 1;
+
+        // Verificar si se ha ingresado la marca del vehículo
+        if (string.IsNullOrEmpty(vehiculo.Marca))
+        {
+            Console.WriteLine("La marca del vehículo es obligatoria.");
+            return;
+        }
+
+        // Agregar el vehículo a la lista en memoria
+        ListaVehiculos.Add(vehiculo);
+
+        // Limpiar el formulario para agregar un nuevo vehículo
+        vehiculo = new Vehiculo();
+
+        // Forzar la actualización de la vista
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Elimina un vehículo de la lista
+    /// </summary>
+    /// <param name="Id">ID del vehículo a eliminar</param>
+    void Eliminar(int Id)
+    {
+        // Eliminar el vehículo de la lista por su ID
+        var vehiculoAEliminar = ListaVehiculos.FirstOrDefault(v => v.Id == Id);
+        if (vehiculoAEliminar != null)
+        {
+            ListaVehiculos.Remove(vehiculoAEliminar);
+        }
+
+        // Forzar la actualización de la vista
+        StateHasChanged();
+    }
+}
+
